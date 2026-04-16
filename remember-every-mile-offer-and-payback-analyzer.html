@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Remember Every Mile — Offer Analyzer</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --blue: #00aeef;
+    --blue-dark: #0087bb;
+    --blue-light: #e6f7fd;
+    --blue-mid: #b3e5f9;
+    --green: #66ae00;
+    --green-light: #edf7e0;
+    --green-dark: #3a7d00;
+    --yellow: #FFD800;
+    --purple: #8400FF;
+    --text: #1a1a1a;
+    --text-secondary: #666;
+    --text-muted: #999;
+    --border: #e0e0e0;
+    --border-light: #f0f0f0;
+    --bg: #f7f8fa;
+    --surface: #ffffff;
+    --warning-bg: #fff8e1;
+    --warning-border: #FFD800;
+    --warning-text: #7a5c00;
+    --error-bg: #fff0f0;
+    --error-border: #ff4444;
+    --error-text: #a30000;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  /* Header */
+  .header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 20px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .header-left { display: flex; align-items: center; gap: 16px; }
+
+  .logo-mark {
+    width: 36px; height: 36px;
+    background: var(--blue);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .logo-mark svg { width: 20px; height: 20px; }
+
+  .header-title { font-size: 15px; font-weight: 600; color: var(--text); letter-spacing: -0.01em; }
+  .header-sub { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
+
+  /* View toggle */
+  .view-toggle {
+    display: flex;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 3px;
+    gap: 2px;
+  }
+  .view-btn {
+    padding: 6px 14px;
+    font-size: 12px;
+    font-weight: 500;
+    font-family: 'DM Sans', sans-serif;
+    border: none;
+    background: transparent;
+    border-radius: 6px;
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: all 0.15s;
+  }
+  .view-btn.active {
+    background: var(--surface);
+    color: var(--text);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+  .view-btn:hover:not(.active) { color: var(--text); }
+
+  /* Main layout */
+  .main { max-width: 800px; margin: 0 auto; padding: 32px 24px 80px; }
+
+  /* Offer tier tabs */
+  .tier-tabs {
+    display: flex;
+    gap: 0;
+    margin-bottom: 28px;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    background: var(--surface);
+  }
+  .tier-tab {
+    flex: 1;
+    padding: 16px 20px;
+    border: none;
+    background: transparent;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    text-align: left;
+    border-right: 1px solid var(--border);
+    transition: background 0.15s;
+    position: relative;
+  }
+  .tier-tab:last-child { border-right: none; }
+  .tier-tab.active { background: var(--blue-light); }
+  .tier-tab:hover:not(.active) { background: var(--bg); }
+  .tier-tab-label { font-size: 11px; font-weight: 500; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+  .tier-tab-title { font-size: 14px; font-weight: 600; color: var(--text); }
+  .tier-tab-desc { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+  .tier-tab.active .tier-tab-title { color: var(--blue-dark); }
+  .tier-tab-badge {
+    position: absolute; top: 12px; right: 12px;
+    font-size: 10px; font-weight: 600;
+    background: var(--blue); color: #fff;
+    padding: 2px 7px; border-radius: 20px;
+  }
+
+  /* Offer box */
+  .offer-box {
+    background: var(--blue-light);
+    border-left: 3px solid var(--blue);
+    border-radius: 0 8px 8px 0;
+    padding: 14px 18px;
+    margin-bottom: 24px;
+  }
+  .offer-box p { font-size: 13px; color: #004f6e; line-height: 1.65; }
+  .offer-box strong { color: var(--blue-dark); }
+
+  /* Customer facing note */
+  .customer-note {
+    background: #f3f0ff;
+    border-left: 3px solid var(--purple);
+    border-radius: 0 8px 8px 0;
+    padding: 14px 18px;
+    margin-bottom: 24px;
+    font-size: 13px;
+    color: #3d0099;
+    line-height: 1.65;
+  }
+
+  /* Controls */
+  .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+  .ctrl-group { }
+  .ctrl-label { font-size: 12px; font-weight: 500; color: var(--text-secondary); margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
+  .ctrl-val { font-size: 13px; font-weight: 600; color: var(--text); font-family: 'DM Mono', monospace; }
+  input[type=range] {
+    width: 100%;
+    -webkit-appearance: none;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--border);
+    outline: none;
+    cursor: pointer;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: var(--blue);
+    cursor: pointer;
+    border: 2px solid white;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  }
+
+  /* Approval warning */
+  .approval-flag {
+    display: none;
+    background: var(--error-bg);
+    border: 1px solid var(--error-border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-bottom: 20px;
+    font-size: 12px;
+    color: var(--error-text);
+    line-height: 1.6;
+  }
+  .approval-flag strong { font-weight: 600; }
+
+  /* Renewal note */
+  .renewal-note {
+    background: var(--warning-bg);
+    border: 1px solid var(--warning-border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-bottom: 20px;
+    font-size: 12px;
+    color: var(--warning-text);
+    line-height: 1.6;
+  }
+
+  /* Section heading */
+  .section-head {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin: 28px 0 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  /* Metric cards */
+  .metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 10px; }
+  .metric {
+    background: var(--surface);
+    border: 1px solid var(--border-light);
+    border-radius: 10px;
+    padding: 14px;
+  }
+  .metric-label { font-size: 11px; color: var(--text-muted); margin-bottom: 6px; }
+  .metric-val { font-size: 24px; font-weight: 600; color: var(--text); font-family: 'DM Mono', monospace; letter-spacing: -0.02em; }
+  .metric-val.green { color: var(--green-dark); }
+  .metric-val.blue { color: var(--blue-dark); }
+  .metric-sub { font-size: 11px; color: var(--text-muted); margin-top: 3px; }
+
+  /* Breakdown table */
+  .breakdown {
+    background: var(--surface);
+    border: 1px solid var(--border-light);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
+  .breakdown table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .breakdown tr { border-bottom: 1px solid var(--border-light); }
+  .breakdown tr:last-child { border-bottom: none; }
+  .breakdown td { padding: 10px 16px; color: var(--text-secondary); }
+  .breakdown td:last-child { text-align: right; font-weight: 600; color: var(--text); font-family: 'DM Mono', monospace; font-size: 12px; }
+  .breakdown tr.hl { background: var(--blue-light); }
+  .breakdown tr.hl td { color: #004f6e; }
+  .breakdown tr.hl td:last-child { color: var(--blue-dark); }
+  .breakdown tr.total { background: var(--green-light); }
+  .breakdown tr.total td { color: var(--green-dark); font-weight: 600; }
+  .breakdown tr.total td:last-child { color: var(--green-dark); }
+
+  /* Timeline */
+  .timeline { background: var(--surface); border: 1px solid var(--border-light); border-radius: 10px; overflow: hidden; margin-bottom: 24px; }
+  .tl-item { display: flex; gap: 16px; padding: 14px 16px; border-bottom: 1px solid var(--border-light); align-items: flex-start; }
+  .tl-item:last-child { border-bottom: none; }
+  .tl-left { min-width: 72px; }
+  .tl-mo { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+  .tl-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); margin-top: 2px; }
+  .tl-dot.blue { background: var(--blue); }
+  .tl-dot.green { background: var(--green); }
+  .tl-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+  .tl-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
+  .tl-tag { display: inline-block; font-size: 11px; font-family: 'DM Mono', monospace; padding: 2px 8px; border-radius: 4px; margin-top: 4px; }
+  .tl-tag.blue { background: var(--blue-light); color: var(--blue-dark); }
+  .tl-tag.green { background: var(--green-light); color: var(--green-dark); }
+
+  /* T&C */
+  .tnc-internal {
+    font-size: 11px; color: var(--text-muted); line-height: 1.6;
+    padding: 16px; background: var(--surface);
+    border: 1px solid var(--border-light); border-radius: 10px;
+    margin-bottom: 8px;
+  }
+  .tnc-internal strong { color: var(--text-secondary); }
+  .tnc-public {
+    font-size: 11px; color: var(--text-muted); line-height: 1.6;
+    padding: 16px; background: var(--surface);
+    border: 1px solid var(--border-light); border-radius: 10px;
+    margin-bottom: 8px;
+  }
+
+  /* Internal badge */
+  .internal-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: #fff3cd; border: 1px solid #ffc107;
+    color: #7a5c00; font-size: 11px; font-weight: 600;
+    padding: 4px 10px; border-radius: 20px;
+    margin-bottom: 20px;
+  }
+  .internal-badge::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #ffc107;
+  }
+
+  /* Divider */
+  .divider { height: 1px; background: var(--border-light); margin: 8px 0 24px; }
+
+  @media (max-width: 600px) {
+    .header { padding: 14px 16px; }
+    .main { padding: 20px 16px 60px; }
+    .controls { grid-template-columns: 1fr; }
+    .metrics { grid-template-columns: 1fr 1fr; }
+    .tier-tabs { flex-direction: column; }
+    .tier-tab { border-right: none; border-bottom: 1px solid var(--border); }
+    .tier-tab:last-child { border-bottom: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <div class="logo-mark">
+      <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="10" cy="10" r="8" stroke="white" stroke-width="1.5" fill="none"/>
+        <circle cx="10" cy="10" r="4.5" stroke="white" stroke-width="1.5" fill="none"/>
+        <line x1="10" y1="2" x2="16" y2="16" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div>
+      <div class="header-title">Remember Every Mile</div>
+      <div class="header-sub">Memorial Day Offer Analyzer &middot; Zonar Systems</div>
+    </div>
+  </div>
+  <div class="view-toggle">
+    <button class="view-btn active" onclick="setView('internal')" id="btn-internal">Internal</button>
+    <button class="view-btn" onclick="setView('customer')" id="btn-customer">Customer-facing</button>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- Internal badge -->
+  <div class="internal-badge" id="internal-badge">Internal use only — not for distribution</div>
+
+  <!-- Tier tabs -->
+  <div class="tier-tabs">
+    <button class="tier-tab active" onclick="setTier(1)" id="tab-1">
+      <div class="tier-tab-label">Tier 1</div>
+      <div class="tier-tab-title">1–9 Lines</div>
+      <div class="tier-tab-desc">6 months free on new line</div>
+      <div class="tier-tab-badge">SMB Starter</div>
+    </button>
+    <button class="tier-tab" onclick="setTier(2)" id="tab-2">
+      <div class="tier-tab-label">Tier 2</div>
+      <div class="tier-tab-title">10+ Lines</div>
+      <div class="tier-tab-desc">12 months free on 10th line</div>
+      <div class="tier-tab-badge">Remember Every Mile</div>
+    </button>
+  </div>
+
+  <!-- TIER 1 -->
+  <div id="tier1-content">
+    <div class="offer-box" id="t1-offer-internal">
+      <p>Offer: Add 1 new subscription and get the new line <strong>free for 6 months</strong> with a 3-year agreement. Full account renewal required. Rate locked fleet-wide for the duration of the term. Eligible for IDP and PDP discounting.</p>
+    </div>
+    <div class="customer-note" id="t1-offer-customer" style="display:none">
+      <p>This Memorial Day, add a new line and get it <strong>free for 6 months</strong> when you sign a 3-year agreement. Lock in your rate and protect your fleet.</p>
+    </div>
+
+    <div class="renewal-note" id="t1-renewal-internal">
+      <strong>Full account renewal required.</strong> Entire account must re-up on a new 3-year agreement as part of this offer. Exceptions require manager approval.
+    </div>
+
+    <div class="controls">
+      <div class="ctrl-group">
+        <div class="ctrl-label">Existing subscriptions <span class="ctrl-val" id="t1-existing-val">3</span></div>
+        <input type="range" min="1" max="9" step="1" value="3" id="t1-existing" oninput="calcT1()">
+      </div>
+      <div class="ctrl-group">
+        <div class="ctrl-label">Monthly rate per sub <span class="ctrl-val" id="t1-rate-val">$19.99</span></div>
+        <input type="range" min="10" max="40" step="0.01" value="19.99" id="t1-rate" oninput="calcT1()">
+      </div>
+    </div>
+
+    <div class="approval-flag" id="t1-approval">
+      <strong>Approval required.</strong> Rate is below standard pricing of $19.99/mo. This offer must be approved by your manager before presenting to the customer.
+    </div>
+
+    <div class="section-head">Deal summary</div>
+    <div class="metrics">
+      <div class="metric">
+        <div class="metric-label">New line added</div>
+        <div class="metric-val blue">1</div>
+        <div class="metric-sub">free for 6 months</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Total subs on agreement</div>
+        <div class="metric-val" id="t1-total">4</div>
+        <div class="metric-sub" id="t1-total-sub">3 existing + 1 new</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Net contract value</div>
+        <div class="metric-val green" id="t1-contract">$2,757</div>
+        <div class="metric-sub">over 36 months</div>
+      </div>
+    </div>
+    <div class="metrics">
+      <div class="metric">
+        <div class="metric-label">Deferred revenue</div>
+        <div class="metric-val" id="t1-deferred">$120</div>
+        <div class="metric-sub">1 free line x 6 mo</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Full payback by</div>
+        <div class="metric-val green" id="t1-payback">Month 2</div>
+        <div class="metric-sub">of 36-month term</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Net realized revenue</div>
+        <div class="metric-val green" id="t1-net">$2,637</div>
+        <div class="metric-sub" id="t1-net-pct">95.7% of contract</div>
+      </div>
+    </div>
+
+    <div class="section-head">Offer breakdown</div>
+    <div class="breakdown">
+      <table>
+        <tr><td>Existing subscriptions re-upping</td><td id="t1-b-existing">3</td></tr>
+        <tr><td>New subscription added</td><td>1</td></tr>
+        <tr><td>Total subscriptions on agreement</td><td id="t1-b-total">4</td></tr>
+        <tr class="hl"><td>Free subscription (6-month promo)</td><td>1 line free</td></tr>
+        <tr><td>Billed subs months 1–6</td><td id="t1-b-billed1">3 subs</td></tr>
+        <tr><td>Billed subs months 7–36</td><td id="t1-b-billed2">4 subs</td></tr>
+        <tr><td>Monthly billing (months 1–6)</td><td id="t1-b-m1">$59.97</td></tr>
+        <tr><td>Monthly billing (months 7–36)</td><td id="t1-b-m7">$79.96</td></tr>
+        <tr class="hl"><td>Total deferred revenue</td><td id="t1-b-deferred">$119.94</td></tr>
+        <tr><td>Gross contract value</td><td id="t1-b-gross">$2,757</td></tr>
+        <tr class="total"><td>Net realized revenue</td><td id="t1-b-net">$2,637</td></tr>
+      </table>
+    </div>
+
+    <div class="section-head">Revenue timeline</div>
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-left"><div class="tl-mo">Month 1</div><div class="tl-dot blue"></div></div>
+        <div>
+          <div class="tl-title">Subscription starts</div>
+          <div class="tl-desc">Billing begins. New line free — existing subs billed at full rate.</div>
+          <div class="tl-tag blue" id="t1-tl-1">$59.97/mo (3 subs billed)</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-left"><div class="tl-mo">Month 7</div><div class="tl-dot blue"></div></div>
+        <div>
+          <div class="tl-title">Promo ends</div>
+          <div class="tl-desc">All lines billed at full rate. No invoice change presented to customer.</div>
+          <div class="tl-tag blue" id="t1-tl-7">$79.96/mo (4 subs billed)</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-left"><div class="tl-mo" id="t1-tl-pb-mo">Month 2</div><div class="tl-dot green"></div></div>
+        <div>
+          <div class="tl-title">Full payback reached</div>
+          <div class="tl-desc">Deferred revenue fully recovered. <span id="t1-tl-remaining">34 months</span> remaining in term.</div>
+          <div class="tl-tag green">Rate locked through month 36</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tnc-internal" id="t1-tnc-internal">
+      <strong>Internal notes:</strong> Full account renewal required on a 3-year agreement. Manager approval required before presenting non-standard pricing. Entire account (existing + new lines) re-ups as part of this offer. Exceptions at manager discretion.
+    </div>
+    <div class="tnc-public" id="t1-tnc-public" style="display:none">
+      *Offer subject to terms and conditions. Eligibility and pricing may vary. See your Zonar representative for details.
+    </div>
+  </div>
+
+  <!-- TIER 2 -->
+  <div id="tier2-content" style="display:none">
+    <div class="offer-box" id="t2-offer-internal">
+      <p>Offer: Add 10 camera subscriptions and get <strong>the 10th line free for 12 months</strong> with a 3-year agreement. Full account renewal required. Scale your subscription and receive one additional free line for every 10 you add. Rate locked fleet-wide. Eligible for IDP and PDP discounting.</p>
+    </div>
+    <div class="customer-note" id="t2-offer-customer" style="display:none">
+      <p>This Memorial Day, add 10 camera subscriptions and get <strong>the 10th line free for a full year.</strong> The more you grow, the more you save. Lock in your rate for 3 years and let your investment start paying back before year one is over.</p>
+    </div>
+
+    <div class="renewal-note" id="t2-renewal-internal">
+      <strong>Full account renewal required.</strong> Entire account must re-up on a new 3-year agreement as part of this offer. Exceptions require manager approval.
+    </div>
+
+    <div class="controls">
+      <div class="ctrl-group">
+        <div class="ctrl-label">New camera subs added (x10) <span class="ctrl-val" id="t2-new-val">10</span></div>
+        <input type="range" min="10" max="50" step="10" value="10" id="t2-new" oninput="calcT2()">
+      </div>
+      <div class="ctrl-group">
+        <div class="ctrl-label">Camera rate per sub/mo <span class="ctrl-val" id="t2-cam-rate-val">$40.00</span></div>
+        <input type="range" min="20" max="60" step="0.01" value="40" id="t2-cam-rate" oninput="calcT2()">
+      </div>
+      <div class="ctrl-group">
+        <div class="ctrl-label">Existing GPS/ELD subs <span class="ctrl-val" id="t2-existing-val">20</span></div>
+        <input type="range" min="0" max="100" step="5" value="20" id="t2-existing" oninput="calcT2()">
+      </div>
+      <div class="ctrl-group">
+        <div class="ctrl-label">Existing sub rate/mo <span class="ctrl-val" id="t2-sub-rate-val">$19.99</span></div>
+        <input type="range" min="10" max="40" step="0.01" value="19.99" id="t2-sub-rate" oninput="calcT2()">
+      </div>
+    </div>
+
+    <div class="approval-flag" id="t2-approval">
+      <strong>Approval required.</strong> One or more rates are below standard pricing. This offer must be approved by your manager before presenting to the customer.
+    </div>
+
+    <div class="section-head">Deal summary</div>
+    <div class="metrics">
+      <div class="metric">
+        <div class="metric-label">Camera lines free</div>
+        <div class="metric-val blue" id="t2-free">1</div>
+        <div class="metric-sub">1 per 10 added</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Monthly billing (yr 1)</div>
+        <div class="metric-val" id="t2-monthly">$759</div>
+        <div class="metric-sub" id="t2-monthly-sub">billed lines x rate</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Net contract value</div>
+        <div class="metric-val green" id="t2-contract">$33,957</div>
+        <div class="metric-sub">over 36 months</div>
+      </div>
+    </div>
+    <div class="metrics">
+      <div class="metric">
+        <div class="metric-label">Deferred revenue</div>
+        <div class="metric-val" id="t2-deferred">$480</div>
+        <div class="metric-sub">free cams x 12 mo</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Full payback by</div>
+        <div class="metric-val green" id="t2-payback">Month 1</div>
+        <div class="metric-sub">of 36-month term</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Net realized revenue</div>
+        <div class="metric-val green" id="t2-net">$33,477</div>
+        <div class="metric-sub" id="t2-net-pct">98.6% of contract</div>
+      </div>
+    </div>
+
+    <div class="section-head">Offer breakdown</div>
+    <div class="breakdown">
+      <table>
+        <tr><td>New camera subscriptions added</td><td id="t2-b-new">10</td></tr>
+        <tr><td>Existing GPS/ELD subscriptions re-upping</td><td id="t2-b-existing">20</td></tr>
+        <tr><td>Total subscriptions on new agreement</td><td id="t2-b-total">30</td></tr>
+        <tr class="hl"><td>Free camera lines (12-month promo)</td><td id="t2-b-free">1 line free</td></tr>
+        <tr><td>Billed camera subs (months 1–12)</td><td id="t2-b-billed-cam">9 subs</td></tr>
+        <tr><td>Monthly billing (months 1–12)</td><td id="t2-b-m1">$759.80</td></tr>
+        <tr><td>Monthly billing (months 13–36)</td><td id="t2-b-m13">$799.80</td></tr>
+        <tr class="hl"><td>Total deferred revenue</td><td id="t2-b-deferred">$480.00</td></tr>
+        <tr><td>Gross contract value</td><td id="t2-b-gross">$33,957</td></tr>
+        <tr class="total"><td>Net realized revenue</td><td id="t2-b-net">$33,477</td></tr>
+      </table>
+    </div>
+
+    <div class="section-head">Revenue timeline</div>
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-left"><div class="tl-mo">Month 1</div><div class="tl-dot blue"></div></div>
+        <div>
+          <div class="tl-title">Subscription starts</div>
+          <div class="tl-desc">Billing begins. Free camera lines active — existing subs billed at full rate.</div>
+          <div class="tl-tag blue" id="t2-tl-1">$759.80/mo</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-left"><div class="tl-mo">Month 13</div><div class="tl-dot blue"></div></div>
+        <div>
+          <div class="tl-title">Promo ends</div>
+          <div class="tl-desc">All camera lines billed at full rate. No invoice change presented to customer.</div>
+          <div class="tl-tag blue" id="t2-tl-13">$799.80/mo</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-left"><div class="tl-mo" id="t2-tl-pb-mo">Month 1</div><div class="tl-dot green"></div></div>
+        <div>
+          <div class="tl-title">Full payback reached</div>
+          <div class="tl-desc">Deferred revenue fully recovered. <span id="t2-tl-remaining">35 months</span> remaining in term.</div>
+          <div class="tl-tag green">Rate locked through month 36</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tnc-internal" id="t2-tnc-internal">
+      <strong>Internal notes:</strong> Full account renewal required on a 3-year agreement. Manager approval required before presenting non-standard pricing. Free line applies to every 10 camera subs added — no cap. Entire account re-ups as part of this offer. Exceptions at manager discretion.
+    </div>
+    <div class="tnc-public" id="t2-tnc-public" style="display:none">
+      *Offer subject to terms and conditions. Eligibility and pricing may vary. See your Zonar representative for details.
+    </div>
+  </div>
+
+</div>
+
+<script>
+  var currentView = 'internal';
+  var currentTier = 1;
+
+  function setView(v) {
+    currentView = v;
+    document.getElementById('btn-internal').classList.toggle('active', v === 'internal');
+    document.getElementById('btn-customer').classList.toggle('active', v === 'customer');
+    document.getElementById('internal-badge').style.display = v === 'internal' ? 'inline-flex' : 'none';
+
+    var isInternal = v === 'internal';
+
+    // Tier 1
+    document.getElementById('t1-offer-internal').style.display = isInternal ? 'block' : 'none';
+    document.getElementById('t1-offer-customer').style.display = isInternal ? 'none' : 'block';
+    document.getElementById('t1-renewal-internal').style.display = isInternal ? 'block' : 'none';
+    document.getElementById('t1-tnc-internal').style.display = isInternal ? 'block' : 'none';
+    document.getElementById('t1-tnc-public').style.display = isInternal ? 'none' : 'block';
+
+    // Tier 2
+    document.getElementById('t2-offer-internal').style.display = isInternal ? 'block' : 'none';
+    document.getElementById('t2-offer-customer').style.display = isInternal ? 'none' : 'block';
+    document.getElementById('t2-renewal-internal').style.display = isInternal ? 'block' : 'none';
+    document.getElementById('t2-tnc-internal').style.display = isInternal ? 'block' : 'none';
+    document.getElementById('t2-tnc-public').style.display = isInternal ? 'none' : 'block';
+
+    // Re-check approval flags
+    calcT1(); calcT2();
+  }
+
+  function setTier(t) {
+    currentTier = t;
+    document.getElementById('tab-1').classList.toggle('active', t === 1);
+    document.getElementById('tab-2').classList.toggle('active', t === 2);
+    document.getElementById('tier1-content').style.display = t === 1 ? 'block' : 'none';
+    document.getElementById('tier2-content').style.display = t === 2 ? 'block' : 'none';
+  }
+
+  function fmt(n) { return '$' + Math.round(n).toLocaleString(); }
+  function fmtD(n) { return '$' + n.toFixed(2); }
+
+  function calcT1() {
+    var existing = parseInt(document.getElementById('t1-existing').value);
+    var rate = parseFloat(document.getElementById('t1-rate').value);
+
+    document.getElementById('t1-existing-val').textContent = existing;
+    document.getElementById('t1-rate-val').textContent = '$' + rate.toFixed(2);
+
+    var total = existing + 1;
+    var billedM1 = existing;
+    var mM1 = billedM1 * rate;
+    var mFull = total * rate;
+    var deferred = rate * 6;
+    var gross = (mM1 * 6) + (mFull * 30);
+    var net = gross - deferred;
+    var payback = Math.ceil(deferred / mM1);
+    var pct = (net / gross * 100).toFixed(1);
+
+    var showApproval = currentView === 'internal' && rate < 19.99;
+    document.getElementById('t1-approval').style.display = showApproval ? 'block' : 'none';
+
+    document.getElementById('t1-total').textContent = total;
+    document.getElementById('t1-total-sub').textContent = existing + ' existing + 1 new';
+    document.getElementById('t1-contract').textContent = fmt(gross);
+    document.getElementById('t1-deferred').textContent = fmtD(deferred);
+    document.getElementById('t1-payback').textContent = 'Month ' + payback;
+    document.getElementById('t1-net').textContent = fmt(net);
+    document.getElementById('t1-net-pct').textContent = pct + '% of contract';
+
+    document.getElementById('t1-b-existing').textContent = existing;
+    document.getElementById('t1-b-total').textContent = total;
+    document.getElementById('t1-b-billed1').textContent = billedM1 + ' subs';
+    document.getElementById('t1-b-billed2').textContent = total + ' subs';
+    document.getElementById('t1-b-m1').textContent = fmtD(mM1);
+    document.getElementById('t1-b-m7').textContent = fmtD(mFull);
+    document.getElementById('t1-b-deferred').textContent = fmtD(deferred);
+    document.getElementById('t1-b-gross').textContent = fmt(gross);
+    document.getElementById('t1-b-net').textContent = fmt(net);
+
+    document.getElementById('t1-tl-1').textContent = fmtD(mM1) + '/mo (' + billedM1 + ' subs billed)';
+    document.getElementById('t1-tl-7').textContent = fmtD(mFull) + '/mo (' + total + ' subs billed)';
+    document.getElementById('t1-tl-pb-mo').textContent = 'Month ' + payback;
+    document.getElementById('t1-tl-remaining').textContent = (36 - payback) + ' months';
+  }
+
+  function calcT2() {
+    var newCams = parseInt(document.getElementById('t2-new').value);
+    var camRate = parseFloat(document.getElementById('t2-cam-rate').value);
+    var existing = parseInt(document.getElementById('t2-existing').value);
+    var subRate = parseFloat(document.getElementById('t2-sub-rate').value);
+
+    document.getElementById('t2-new-val').textContent = newCams;
+    document.getElementById('t2-cam-rate-val').textContent = '$' + camRate.toFixed(2);
+    document.getElementById('t2-existing-val').textContent = existing;
+    document.getElementById('t2-sub-rate-val').textContent = '$' + subRate.toFixed(2);
+
+    var freeCams = Math.floor(newCams / 10);
+    var billedCams = newCams - freeCams;
+    var totalSubs = newCams + existing;
+
+    var mM1 = (billedCams * camRate) + (existing * subRate);
+    var mFull = (newCams * camRate) + (existing * subRate);
+    var deferred = freeCams * camRate * 12;
+    var gross = (mM1 * 12) + (mFull * 24);
+    var net = gross - deferred;
+    var payback = Math.ceil(deferred / mM1);
+    var pct = (net / gross * 100).toFixed(1);
+
+    var showApproval = currentView === 'internal' && (camRate < 40 || subRate < 19.99);
+    document.getElementById('t2-approval').style.display = showApproval ? 'block' : 'none';
+
+    document.getElementById('t2-free').textContent = freeCams;
+    document.getElementById('t2-monthly').textContent = fmt(mM1);
+    document.getElementById('t2-monthly-sub').textContent = billedCams + ' cam + ' + existing + ' sub billed';
+    document.getElementById('t2-contract').textContent = fmt(gross);
+    document.getElementById('t2-deferred').textContent = fmtD(deferred);
+    document.getElementById('t2-payback').textContent = 'Month ' + payback;
+    document.getElementById('t2-net').textContent = fmt(net);
+    document.getElementById('t2-net-pct').textContent = pct + '% of contract';
+
+    document.getElementById('t2-b-new').textContent = newCams;
+    document.getElementById('t2-b-existing').textContent = existing;
+    document.getElementById('t2-b-total').textContent = totalSubs;
+    document.getElementById('t2-b-free').textContent = freeCams + ' line' + (freeCams !== 1 ? 's' : '') + ' free';
+    document.getElementById('t2-b-billed-cam').textContent = billedCams + ' subs';
+    document.getElementById('t2-b-m1').textContent = fmtD(mM1);
+    document.getElementById('t2-b-m13').textContent = fmtD(mFull);
+    document.getElementById('t2-b-deferred').textContent = fmtD(deferred);
+    document.getElementById('t2-b-gross').textContent = fmt(gross);
+    document.getElementById('t2-b-net').textContent = fmt(net);
+
+    document.getElementById('t2-tl-1').textContent = fmtD(mM1) + '/mo (' + billedCams + ' cam + ' + existing + ' sub billed)';
+    document.getElementById('t2-tl-13').textContent = fmtD(mFull) + '/mo (' + newCams + ' cam + ' + existing + ' sub billed)';
+    document.getElementById('t2-tl-pb-mo').textContent = 'Month ' + payback;
+    document.getElementById('t2-tl-remaining').textContent = (36 - payback) + ' months';
+  }
+
+  calcT1();
+  calcT2();
+</script>
+</body>
+</html>
