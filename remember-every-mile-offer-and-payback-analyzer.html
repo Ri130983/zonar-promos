@@ -365,6 +365,14 @@
       <p>This Memorial Day, add new lines and get <strong>1 line free for 6 months</strong> when you sign a 3-year agreement. Lock in your rate and protect your fleet.</p>
     </div>
 
+    <div style="background:#edf7e0; border-left:3px solid #66ae00; border-radius:0 8px 8px 0; padding:12px 18px; margin-bottom:14px; font-size:13px; color:#2a5c00; line-height:1.65;">
+      <strong>Includes:</strong> Standard 90-day free trial on up to 5 devices before your agreement begins — a <strong id="t1-trial-value">$300</strong> added value at your selected rate.
+    </div>
+
+    <div style="background:#f7f0ff; border-left:3px solid #8400FF; border-radius:0 8px 8px 0; padding:10px 18px; margin-bottom:20px; font-size:12px; color:#4a0090; line-height:1.65;" id="t1-promo-code">
+      <strong>Promo code required:</strong> <span style="font-family:monospace; font-size:13px; font-weight:600;">Remember26</span> — must be entered at time of offer submission.
+    </div>
+
     <div class="renewal-note" id="t1-renewal-internal">
       <strong>Full account renewal required.</strong> Entire account must re-up on a new 3-year agreement as part of this offer. Exceptions require manager approval.
     </div>
@@ -421,6 +429,23 @@
         <div class="metric-label">Net realized revenue</div>
         <div class="metric-val green" id="t1-net">$2,637</div>
         <div class="metric-sub" id="t1-net-pct">95.7% of contract</div>
+      </div>
+    </div>
+    <div class="metrics">
+      <div class="metric" style="border:1.5px solid #66ae00;">
+        <div class="metric-label">90-day trial value</div>
+        <div class="metric-val green" id="t1-trial-metric">$300</div>
+        <div class="metric-sub">5 devices x 3 months</div>
+      </div>
+      <div class="metric" style="border:1.5px solid #66ae00;">
+        <div class="metric-label">Promo savings (6 mo free)</div>
+        <div class="metric-val green" id="t1-promo-savings">$120</div>
+        <div class="metric-sub">1 line x 6 months</div>
+      </div>
+      <div class="metric" style="background:#edf7e0; border:1.5px solid #66ae00;">
+        <div class="metric-label">Total offer value to customer</div>
+        <div class="metric-val green" id="t1-total-offer-value">$420</div>
+        <div class="metric-sub">trial + promo savings</div>
       </div>
     </div>
 
@@ -486,6 +511,14 @@
       <p>This Memorial Day, add 10 camera subscriptions and get <strong>the 10th line free for a full year.</strong> The more you grow, the more you save. Lock in your rate for 3 years and let your investment start paying back before year one is over.</p>
     </div>
 
+    <div style="background:#edf7e0; border-left:3px solid #66ae00; border-radius:0 8px 8px 0; padding:12px 18px; margin-bottom:14px; font-size:13px; color:#2a5c00; line-height:1.65;">
+      <strong>Includes:</strong> Standard 90-day free trial on up to 5 devices before your agreement begins — a <strong id="t2-trial-value">$600</strong> added value at your selected rate.
+    </div>
+
+    <div style="background:#f7f0ff; border-left:3px solid #8400FF; border-radius:0 8px 8px 0; padding:10px 18px; margin-bottom:20px; font-size:12px; color:#4a0090; line-height:1.65;" id="t2-promo-code">
+      <strong>Promo code required:</strong> <span style="font-family:monospace; font-size:13px; font-weight:600;">EveryMile26</span> — must be entered at time of offer submission.
+    </div>
+
     <div class="renewal-note" id="t2-renewal-internal">
       <strong>Full account renewal required.</strong> Entire account must re-up on a new 3-year agreement as part of this offer. Exceptions require manager approval.
     </div>
@@ -546,6 +579,23 @@
         <div class="metric-label">Net realized revenue</div>
         <div class="metric-val green" id="t2-net">$33,477</div>
         <div class="metric-sub" id="t2-net-pct">98.6% of contract</div>
+      </div>
+    </div>
+    <div class="metrics">
+      <div class="metric" style="border:1.5px solid #66ae00;">
+        <div class="metric-label">90-day trial value</div>
+        <div class="metric-val green" id="t2-trial-metric">$600</div>
+        <div class="metric-sub">5 devices x 3 months</div>
+      </div>
+      <div class="metric" style="border:1.5px solid #66ae00;">
+        <div class="metric-label">Promo savings (12 mo free)</div>
+        <div class="metric-val green" id="t2-promo-savings">$480</div>
+        <div class="metric-sub">free lines x 12 months</div>
+      </div>
+      <div class="metric" style="background:#edf7e0; border:1.5px solid #66ae00;">
+        <div class="metric-label">Total offer value to customer</div>
+        <div class="metric-val green" id="t2-total-offer-value">$1,080</div>
+        <div class="metric-sub">trial + promo savings</div>
       </div>
     </div>
 
@@ -691,6 +741,14 @@
     document.getElementById('t1-tl-7').textContent = fmtD(mFull) + '/mo (' + total + ' subs billed)';
     document.getElementById('t1-tl-pb-mo').textContent = 'Month ' + payback;
     document.getElementById('t1-tl-remaining').textContent = (36 - payback) + ' months';
+
+    var trialVal = rate * 5 * 3;
+    var promoSavings = rate * 6;
+    var totalOfferVal = trialVal + promoSavings;
+    document.getElementById('t1-trial-value').textContent = fmtD(trialVal);
+    document.getElementById('t1-trial-metric').textContent = fmtD(trialVal);
+    document.getElementById('t1-promo-savings').textContent = fmtD(promoSavings);
+    document.getElementById('t1-total-offer-value').textContent = fmtD(totalOfferVal);
   }
 
   function calcT2() {
@@ -743,6 +801,14 @@
     document.getElementById('t2-tl-13').textContent = fmtD(mFull) + '/mo (' + newCams + ' cam + ' + existing + ' sub billed)';
     document.getElementById('t2-tl-pb-mo').textContent = 'Month ' + payback;
     document.getElementById('t2-tl-remaining').textContent = (36 - payback) + ' months';
+
+    var trialVal2 = camRate * 5 * 3;
+    var promoSavings2 = deferred;
+    var totalOfferVal2 = trialVal2 + promoSavings2;
+    document.getElementById('t2-trial-value').textContent = fmtD(trialVal2);
+    document.getElementById('t2-trial-metric').textContent = fmtD(trialVal2);
+    document.getElementById('t2-promo-savings').textContent = fmtD(promoSavings2);
+    document.getElementById('t2-total-offer-value').textContent = fmtD(totalOfferVal2);
   }
 
   calcT1();
