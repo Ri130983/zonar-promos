@@ -359,10 +359,10 @@
   <!-- TIER 1 -->
   <div id="tier1-content">
     <div class="offer-box" id="t1-offer-internal">
-      <p>Offer: Add 1 new subscription and get the new line <strong>free for 6 months</strong> with a 3-year agreement. Full account renewal required. Rate locked fleet-wide for the duration of the term. Eligible for IDP and PDP discounting.</p>
+      <p>Offer: Add 1–9 new subscriptions and get <strong>1 line free for 6 months</strong> with a 3-year agreement. Free line is fixed at 1 regardless of how many new lines are added. Full account renewal required. Rate locked fleet-wide for the duration of the term. Eligible for IDP and PDP discounting.</p>
     </div>
     <div class="customer-note" id="t1-offer-customer" style="display:none">
-      <p>This Memorial Day, add a new line and get it <strong>free for 6 months</strong> when you sign a 3-year agreement. Lock in your rate and protect your fleet.</p>
+      <p>This Memorial Day, add new lines and get <strong>1 line free for 6 months</strong> when you sign a 3-year agreement. Lock in your rate and protect your fleet.</p>
     </div>
 
     <div class="renewal-note" id="t1-renewal-internal">
@@ -372,7 +372,11 @@
     <div class="controls">
       <div class="ctrl-group">
         <div class="ctrl-label">Existing subscriptions <span class="ctrl-val" id="t1-existing-val">3</span></div>
-        <input type="range" min="1" max="9" step="1" value="3" id="t1-existing" oninput="calcT1()">
+        <input type="range" min="0" max="50" step="1" value="3" id="t1-existing" oninput="calcT1()">
+      </div>
+      <div class="ctrl-group">
+        <div class="ctrl-label">New lines adding <span class="ctrl-val" id="t1-new-val">1</span></div>
+        <input type="range" min="1" max="9" step="1" value="1" id="t1-new" oninput="calcT1()">
       </div>
       <div class="ctrl-group">
         <div class="ctrl-label">Monthly rate per sub <span class="ctrl-val" id="t1-rate-val">$19.99</span></div>
@@ -387,9 +391,9 @@
     <div class="section-head">Deal summary</div>
     <div class="metrics">
       <div class="metric">
-        <div class="metric-label">New line added</div>
-        <div class="metric-val blue">1</div>
-        <div class="metric-sub">free for 6 months</div>
+        <div class="metric-label">New lines added</div>
+        <div class="metric-val blue" id="t1-new-display">1</div>
+        <div class="metric-sub">1 free for 6 months</div>
       </div>
       <div class="metric">
         <div class="metric-label">Total subs on agreement</div>
@@ -424,7 +428,7 @@
     <div class="breakdown">
       <table>
         <tr><td>Existing subscriptions re-upping</td><td id="t1-b-existing">3</td></tr>
-        <tr><td>New subscription added</td><td>1</td></tr>
+        <tr><td>New subscriptions added</td><td id="t1-b-new">1</td></tr>
         <tr><td>Total subscriptions on agreement</td><td id="t1-b-total">4</td></tr>
         <tr class="hl"><td>Free subscription (6-month promo)</td><td>1 line free</td></tr>
         <tr><td>Billed subs months 1–6</td><td id="t1-b-billed1">3 subs</td></tr>
@@ -642,26 +646,30 @@
 
   function calcT1() {
     var existing = parseInt(document.getElementById('t1-existing').value);
+    var newLines = parseInt(document.getElementById('t1-new').value);
     var rate = parseFloat(document.getElementById('t1-rate').value);
 
     document.getElementById('t1-existing-val').textContent = existing;
+    document.getElementById('t1-new-val').textContent = newLines;
     document.getElementById('t1-rate-val').textContent = '$' + rate.toFixed(2);
 
-    var total = existing + 1;
-    var billedM1 = existing;
+    var total = existing + newLines;
+    var freeLine = 1;
+    var billedM1 = total - freeLine;
     var mM1 = billedM1 * rate;
     var mFull = total * rate;
     var deferred = rate * 6;
     var gross = (mM1 * 6) + (mFull * 30);
     var net = gross - deferred;
-    var payback = Math.ceil(deferred / mM1);
-    var pct = (net / gross * 100).toFixed(1);
+    var payback = mM1 > 0 ? Math.ceil(deferred / mM1) : 0;
+    var pct = gross > 0 ? (net / gross * 100).toFixed(1) : '0.0';
 
     var showApproval = currentView === 'internal' && rate < 19.99;
     document.getElementById('t1-approval').style.display = showApproval ? 'block' : 'none';
 
+    document.getElementById('t1-new-display').textContent = newLines;
     document.getElementById('t1-total').textContent = total;
-    document.getElementById('t1-total-sub').textContent = existing + ' existing + 1 new';
+    document.getElementById('t1-total-sub').textContent = existing + ' existing + ' + newLines + ' new';
     document.getElementById('t1-contract').textContent = fmt(gross);
     document.getElementById('t1-deferred').textContent = fmtD(deferred);
     document.getElementById('t1-payback').textContent = 'Month ' + payback;
@@ -669,6 +677,7 @@
     document.getElementById('t1-net-pct').textContent = pct + '% of contract';
 
     document.getElementById('t1-b-existing').textContent = existing;
+    document.getElementById('t1-b-new').textContent = newLines;
     document.getElementById('t1-b-total').textContent = total;
     document.getElementById('t1-b-billed1').textContent = billedM1 + ' subs';
     document.getElementById('t1-b-billed2').textContent = total + ' subs';
